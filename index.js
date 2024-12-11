@@ -1,13 +1,15 @@
-const express = require('express');
 // const fs = require('fs');
 
+const express = require('express');
 const morgan = require('morgan');
+const appError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
-// middleware
+//* middleware
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
@@ -18,8 +20,19 @@ app.use((req, res, next) => {
     next();
 });
 
-//Router
+//! Router
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+// TODO Handling Undefined routes
+app.all('*', (req, res, next) => {
+    // res.status(404).json({
+    //     status: 'fail',
+    //     message: `Can't find ${req.originalUrl} on this server`
+    // });
+    next(new appError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+app.use(globalErrorHandler);
 
 module.exports = app;
