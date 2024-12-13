@@ -1,12 +1,20 @@
 const AppError = require('./../utils/appError');
 
 const sendErrorDev = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        message: err.message,
-        stack: err.stack
-    });
+    if (err.isOperational) {
+        res.status(err.statusCode).json({
+            status: err.status,
+            error: err,
+            message: err.message,
+            stack: err.stack
+        });
+    }
+    else {
+        res.status(500).json({
+            status: 'error',
+            message: 'Something went wrong'
+        });
+    }
 };
 
 const sendErrorProd = (err, res) => {
@@ -42,18 +50,30 @@ const handleValidationErrDB = err => {
     return new AppError(message, 400);
 };
 
+const handleJsonWebTokenErrorDB = err => {
+    const message = 'Invalid token. Please log in again';
+    return new AppError(message, 401);
+}
+handleTokenExpiredErrorDB = err => {
+    message = 'Expired token. Please log in again';
+    return new AppError(message, 401);
+}
+
 module.exports = (err, req, res, next) => {
     if (process.env.NODE_ENV === 'development') {
         if (err.name === 'CastError') err = handleCastErrDB(err);
         if (err.code === 11000) err = handleDuplicateFieldsDB(err);
         if (err.name === 'ValidationError') err = handleValidationErrDB(err);
+        if (err.name === 'JsonWebTokenError') err = handleJsonWebTokenErrorDB(err);
+        if (err.name === 'TokenExpiredError') err = handleTokenExpiredErrorDB(err);
         sendErrorDev(err, res);
     }
     else if (process.env.NODE_ENV === 'production') {
         if (err.name === 'CastError') err = handleCastErrDB(err);
         if (err.code === 11000) err = handleDuplicateFieldsDB(err);
         if (err.name === 'ValidationError') err = handleValidationErrDB(err);
+        if (err.name === 'JsonWebTokenError') err = handleJsonWebTokenErrorDB(err);
+        if (err.name === 'TokenExpiredError') err = handleTokenExpiredErrorDB(err);
         sendErrorProd(err, res);
     }
-    next();
 };
