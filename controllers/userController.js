@@ -2,6 +2,7 @@ const User = require('./../models/userModel');
 const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -24,21 +25,21 @@ exports.getAllUsers = catchAsync(async (req, res) => {
     },
   });
 });
-exports.getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    return next(new AppError('Not user found with that id', 404));
-  }
-  return res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    data: {
-      user,
-    },
-  });
-});
+// exports.getUser = catchAsync(async (req, res, next) => {
+//   const user = await User.findById(req.params.id);
+//   if (!user) {
+//     return next(new AppError('Not user found with that id', 404));
+//   }
+//   return res.status(200).json({
+//     status: 'success',
+//     requestedAt: req.requestTime,
+//     data: {
+//       user,
+//     },
+//   });
+// });
 
-exports.deleteUser = catchAsync(async (req, res) => {
+exports.deleteMe = catchAsync(async (req, res) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
   res.status(204).json({
@@ -47,7 +48,7 @@ exports.deleteUser = catchAsync(async (req, res) => {
   });
 });
 
-exports.updateUser = catchAsync(async (req, res, next) => {
+exports.updateMe = catchAsync(async (req, res, next) => {
   //* 1) create error if user post password
   if (req.body.password || req.body.passwordConfirmation) {
     return next(
@@ -70,3 +71,12 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
+exports.deleteUser = factory.deleteOne(User);
+exports.updateUser = factory.updateOne(User);
+exports.getUser = factory.getOne(User);
