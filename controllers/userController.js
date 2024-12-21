@@ -38,13 +38,6 @@ exports.getUser = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createUser = (req, res) => {
-  res.status(400).json({
-    status: 'fail',
-    message: 'Not implemented',
-  });
-};
-
 exports.deleteUser = catchAsync(async (req, res) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 

@@ -1,16 +1,20 @@
 // const fs = require('fs');
 
-const express = require('express');
-const morgan = require('morgan');
-const appError = require('./utils/appError');
-const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
+
+const appError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
+
+const express = require('express');
+const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+
 const app = express();
 
 //* middleware
@@ -62,6 +66,7 @@ app.use(helmet());
 //! Router
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // TODO Handling Undefined routes
 app.all('*', (req, res, next) => {

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+// const User = require('./userModel');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -68,12 +68,52 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    startLocation: {
+      //! GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      decsription: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        decsription: String,
+        day: Number,
+      },
+    ],
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },
 );
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangeAt -email',
+  });
+  next();
+});
+
+//! Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'tour',
+});
 
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
