@@ -35,7 +35,13 @@ const tourSchema = new mongoose.Schema(
         message: 'Difficulty must be either easy, medium, or difficult',
       },
     },
-    ratingsAverage: Number,
+    ratingsAverage: {
+      type: Number,
+      default: 0,
+      min: [0, 'Rating must be above 0.0'],
+      max: [5, 'Rating must be below 5.0'],
+      set: (val) => Math.round(val * 10) / 10,
+    },
     ratingsQuantity: {
       type: Number,
       default: 0,
@@ -99,6 +105,8 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+tourSchema.index({ startLocation: '2dsphere' });
 
 tourSchema.pre(/^find/, function (next) {
   this.populate({
