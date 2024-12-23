@@ -6,13 +6,10 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 dotenv.config({ path: './../../config.env' });
 
-// const DB = process.env.DATABASE.replace(
-//   '<password>',
-//   process.env.DATABASE_PASSWORD,
-// );
-
-const DB =
-  'mongodb+srv://mego:Mego%40010299%40@cluster0.tj8jm.mongodb.net/natours?retryWrites=true&w=majority';
+const DB = process.env.DATABASE.replace(
+  '<password>',
+  process.env.DATABASE_PASSWORD,
+);
 
 mongoose
   .connect(DB, {
