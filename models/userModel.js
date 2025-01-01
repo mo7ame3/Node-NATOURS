@@ -35,7 +35,10 @@ const userSchema = new mongoose.Schema(
       },
       select: false,
     },
-    photo: String,
+    photo: {
+      type: String,
+      default: 'default.jpg',
+    },
     passwordChangeAt: Date,
     role: {
       type: String,
